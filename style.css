@@ -1,0 +1,652 @@
+:root {
+    --bg-color: #0d1117;
+    --card-bg: rgba(22, 27, 34, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --accent: #58a6ff;
+
+    --color-correct: #3fb950;
+    --color-present: #d29922;
+    --color-absent: #484f58;
+    --color-empty: rgba(255, 255, 255, 0.05);
+
+    --transition-speed: 0.3s;
+    --glow-shadow: 0 0 15px rgba(88, 166, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.5s ease;
+}
+
+body.classic-bg {
+    background-image:
+        radial-gradient(circle at 50% 10%, rgba(88, 166, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(63, 185, 80, 0.05) 0%, transparent 30%);
+}
+
+#bg-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    filter: brightness(0.4) saturate(0.8);
+    transition: opacity 0.5s ease;
+}
+
+#bg-video.hidden-video {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    position: relative;
+    background: rgba(13, 17, 23, 0.5);
+    backdrop-filter: blur(5px);
+    transition: background 0.5s ease;
+}
+
+.app-container.classic-mode {
+    background: transparent;
+    backdrop-filter: none;
+}
+
+header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#bg-control-fixed {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+#bg-control-fixed .icon-btn {
+    border: none;
+    width: 32px;
+    height: 32px;
+}
+
+#bg-control-fixed span {
+    font-size: 0.45rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    letter-spacing: 0.1rem;
+    margin-top: 4px;
+}
+
+h1 {
+    font-size: 1.5rem;
+    letter-spacing: 0.2rem;
+    font-weight: 700;
+}
+
+.accent {
+    color: var(--accent);
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.icon-btn:hover {
+    background: var(--card-bg);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+#game-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+/* Board Styles */
+.board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    grid-gap: 8px;
+    width: min-content;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 8px;
+}
+
+.tile {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background-color 0.4s;
+    background: var(--color-empty);
+    user-select: none;
+    perspective: 1000px;
+}
+
+.tile.pop {
+    animation: pop 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border-color: var(--text-secondary);
+}
+
+.tile.reveal {
+    animation: reveal 0.5s ease-in-out forwards;
+}
+
+.tile.correct {
+    background-color: var(--color-correct);
+    border-color: var(--color-correct);
+}
+
+.tile.present {
+    background-color: var(--color-present);
+    border-color: var(--color-present);
+}
+
+.tile.absent {
+    background-color: var(--color-absent);
+    border-color: var(--color-absent);
+}
+
+/* Keyboard Styles */
+.keyboard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.key {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    flex: 1;
+    height: 58px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.1s;
+    user-select: none;
+    text-transform: uppercase;
+}
+
+.key:active {
+    transform: scale(0.95);
+    background: var(--border-color);
+}
+
+.key.wide {
+    flex: 1.5;
+}
+
+.key.correct {
+    background-color: var(--color-correct);
+}
+
+.key.present {
+    background-color: var(--color-present);
+}
+
+.key.absent {
+    background-color: var(--color-absent);
+}
+
+/* Game Modes Toggle */
+.game-modes {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.mode-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.mode-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: var(--glow-shadow);
+    border-color: var(--accent);
+}
+
+/* Animations */
+@keyframes pop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-10px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(10px);
+    }
+}
+
+@keyframes reveal {
+    0% {
+        transform: rotateX(0);
+    }
+
+    50% {
+        transform: rotateX(90deg);
+    }
+
+    100% {
+        transform: rotateX(0);
+    }
+}
+
+.shake {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+/* UI Overlays */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 24px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.message-container {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: var(--bg-color);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 2000;
+}
+
+.message-container.show {
+    opacity: 1;
+}
+
+/* Modal Content Styles */
+.modal h2,
+.modal h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.stat-item span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.dist-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dist-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dist-row .bar {
+    background: var(--color-absent);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: right;
+    transition: width 1s ease-out;
+}
+
+.dist-row .bar.winner {
+    background: var(--color-correct);
+}
+
+@media (max-height: 700px) {
+    .tile {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .key {
+        height: 48px;
+    }
+}
+
+/* Music Player Styles - Spotify Minimalist */
+.music-player {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: rgba(18, 18, 18, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 10px;
+    padding: 14px 22px;
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.player-controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.top-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+}
+
+.player-btn {
+    background: transparent;
+    border: none;
+    color: #b3b3b3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, transform 0.15s;
+    padding: 4px;
+}
+
+.player-btn:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.player-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.player-btn.play-main {
+    background: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    padding: 0;
+}
+
+.player-btn.play-main:hover {
+    transform: scale(1.06);
+}
+
+.player-btn.play-main svg {
+    width: 16px;
+    height: 16px;
+}
+
+.player-btn.small {
+    color: #535353;
+    font-size: 1rem;
+}
+
+.player-btn.small:hover {
+    color: #1db954;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.time {
+    font-size: 0.68rem;
+    color: #a7a7a7;
+    min-width: 32px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.progress-bar-wrapper {
+    flex: 1;
+    height: 4px;
+    background: #4d4d4d;
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+}
+
+.progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: white;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+.progress-bar-wrapper:hover .progress-bar {
+    background: #1db954;
+}
+
+@media (max-width: 500px) {
+    .music-player {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+    }
+}
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 120px;
+    margin: 5px 0 0 auto;
+}
+
+.volume-bar-wrapper {
+    flex: 1;
+    height: 4px;
+    background: #4d4d4d;
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+}
+
+.volume-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: white;
+    width: 100%;
+    border-radius: 2px;
+}
+
+.visualizer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 3px;
+    height: 30px;
+    margin-bottom: 10px;
+    padding: 0 10px;
+}
+
+.vis-bar {
+    width: 4px;
+    background: #1db954;
+    border-radius: 2px;
+    height: 10%;
+    transition: height 0.05s ease;
+}.song-info { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; } .song-title { font-size: 0.9rem; font-weight: 700; color: #fff; letter-spacing: 0.02rem; } .song-artist { font-size: 0.75rem; color: #b3b3b3; font-weight: 400; }
